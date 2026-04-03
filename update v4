@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)file:///Users/kcn_sharpgrid/Downloads/index_5.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Till Close">
+<title>Till Close</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; min-height: 100vh; padding: 1rem; color: #1a1a1a; }
+  .app { max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .step { display: none; }
+  .step.active { display: block; }
+  .page-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #ebebeb; display: flex; justify-content: space-between; align-items: center; }
+  .step-indicator { display: flex; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #ddd; }
+  .dot.active { background: #1a1a1a; }
+  .dot.done { background: #999; }
+  .field-group { margin-bottom: 1.25rem; }
+  .field-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+  .field-group input, .field-group textarea { width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit; }
+  .field-group input:focus, .field-group textarea:focus { border-color: #999; }
+  .section-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
+  .denom-table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; }
+  .denom-table thead th { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px 8px; text-align: left; font-weight: 600; }
+  .denom-table thead th:nth-child(2) { text-align: center; }
+  .denom-table thead th:last-child { text-align: right; }
+  .denom-row { border-top: 1px solid #f0f0f0; }
+  .denom-row td { padding: 9px 8px; vertical-align: middle; }
+  .denom-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .denom-input-wrap { display: flex; justify-content: center; }
+  .denom-qty { width: 72px; text-align: center; font-size: 15px; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 8px; font-family: inherit; color: #1a1a1a; outline: none; background: #fff; }
+  .denom-qty:focus { border-color: #999; }
+  .denom-subtotal { font-size: 13px; color: #bbb; text-align: right; white-space: nowrap; }
+  .denom-subtotal.has-value { color: #1a1a1a; font-weight: 600; }
+  .coins-box { background: #f9f9f7; border-radius: 10px; padding: 1rem 1.25rem; border: 1px solid #ebebeb; margin-bottom: 1.25rem; }
+  .coins-box label { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
+  .coins-box input { width: 100%; text-align: left; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 18px; font-family: inherit; color: #1a1a1a; outline: none; background: #fff; }
+  .coins-box input:focus { border-color: #999; }
+  .running-total { background: #f9f9f7; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; border: 1px solid #ebebeb; }
+  .running-row { display: flex; justify-content: space-between; align-items: center; }
+  .running-row + .running-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid #ebebeb; }
+  .running-label { font-size: 13px; color: #888; }
+  .running-amount { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+  .running-total-big { font-size: 22px; font-weight: 700; color: #1a1a1a; }
+  .actions { display: flex; gap: 8px; margin-top: 1rem; }
+  .btn-primary { flex: 1; padding: 13px; border-radius: 10px; border: none; background: #1a1a1a; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-secondary { flex: 1; padding: 13px; border-radius: 10px; border: 1px solid #e0e0e0; background: #fff; color: #1a1a1a; font-size: 15px; cursor: pointer; font-family: inherit; }
+  .btn-secondary:active { background: #f5f5f3; }
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .metric-card { background: #f9f9f7; border-radius: 10px; padding: 1rem; border: 1px solid #ebebeb; }
+  .metric-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; font-weight: 600; }
+  .metric-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+  .pos-box { background: #f9f9f7; border-radius: 12px; padding: 0 1.25rem; border: 1px solid #ebebeb; margin-bottom: 1.25rem; }
+  .pos-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+  .pos-row:last-child { border-bottom: none; }
+  .pos-label { font-size: 14px; color: #666; }
+  .pos-val { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .pos-input { width: 130px; text-align: right; padding: 7px 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; font-family: inherit; color: #1a1a1a; outline: none; background: #fff; }
+  .pos-input:focus { border-color: #999; }
+  .notes-field { width: 100%; min-height: 72px; resize: vertical; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; color: #1a1a1a; outline: none; }
+  .notes-field:focus { border-color: #999; }
+  .variance-card { border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .variance-card.ok { background: #eaf3de; border: 1px solid #c0dd97; }
+  .variance-card.warn { background: #fcebeb; border: 1px solid #f7c1c1; }
+  .variance-card.over { background: #faeeda; border: 1px solid #fac775; }
+  .variance-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
+  .variance-card.ok .variance-label { color: #3b6d11; }
+  .variance-card.warn .variance-label { color: #a32d2d; }
+  .variance-card.over .variance-label { color: #854f0b; }
+  .variance-amount { font-size: 28px; font-weight: 700; }
+  .variance-card.ok .variance-amount { color: #27500a; }
+  .variance-card.warn .variance-amount { color: #791f1f; }
+  .variance-card.over .variance-amount { color: #633806; }
+  .variance-msg { font-size: 13px; margin-top: 4px; }
+  .variance-card.ok .variance-msg { color: #3b6d11; }
+  .variance-card.warn .variance-msg { color: #a32d2d; }
+  .variance-card.over .variance-msg { color: #854f0b; }
+  .breakdown-box { background: #f9f9f7; border-radius: 12px; padding: 0 1.25rem; border: 1px solid #ebebeb; margin-bottom: 1rem; }
+  .breakdown-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-key { color: #888; }
+  .breakdown-val { font-weight: 600; color: #1a1a1a; }
+  .submit-btn { width: 100%; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid #c0dd97; background: #eaf3de; color: #27500a; }
+  .submit-btn.sending { background: #faeeda; border-color: #fac775; color: #633806; }
+  .submit-btn.sent { background: #eaf3de; border-color: #c0dd97; color: #27500a; }
+  .submit-btn.error { background: #fcebeb; border-color: #f7c1c1; color: #791f1f; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .copy-btn { width: 100%; margin-top: 8px; padding: 13px; border-radius: 10px; border: none; background: #1a1a1a; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .copy-btn:active { opacity: 0.85; }
+  .url-banner { background: #f9f9f7; border: 1px solid #ebebeb; border-radius: 10px; padding: 10px 14px; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+  .url-status { font-size: 13px; color: #888; }
+  .url-status.linked { color: #3b6d11; font-weight: 600; }
+  .url-edit-btn { font-size: 13px; color: #888; border: none; background: none; cursor: pointer; text-decoration: underline; font-family: inherit; }
+  .info-box { background: #f9f9f7; border-radius: 10px; padding: 12px 14px; border: 1px solid #ebebeb; font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 1.25rem; }
+  .url-input { width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; color: #1a1a1a; outline: none; }
+  .url-input:focus { border-color: #999; }
+  .skip-btn { width: 100%; margin-top: 8px; padding: 13px; border-radius: 10px; border: 1px solid #e0e0e0; background: #fff; color: #888; font-size: 15px; cursor: pointer; font-family: inherit; }
+
+  /* Home screen banner */
+  .hs-banner { background: #1a1a1a; color: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 1.25rem; display: flex; gap: 12px; align-items: flex-start; }
+  .hs-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .hs-content { flex: 1; }
+  .hs-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .hs-body { font-size: 12px; color: #aaa; line-height: 1.5; }
+  .hs-body b { color: #fff; font-weight: 600; }
+  .hs-dismiss { font-size: 12px; color: #666; border: none; background: none; cursor: pointer; font-family: inherit; margin-top: 8px; text-decoration: underline; padding: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Step 0: Setup -->
+  <div class="step" id="step0">
+    <div class="page-title">Google Sheets setup</div>
+    <div class="info-box">Paste your Google Apps Script Web App URL below. You only need to do this once — it is saved in your browser.</div>
+    <div class="field-group">
+      <label>Apps Script Web App URL</label>
+      <input type="url" id="script-url-input" class="url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    </div>
+    <div class="actions">
+      <button class="btn-primary" onclick="saveUrl()">Save &amp; continue →</button>
+    </div>
+    <button class="skip-btn" onclick="skipUrl()">Skip — no Sheet logging</button>
+  </div>
+
+  <!-- Step 1: Info -->
+  <div class="step active" id="step1">
+    <div class="page-title">
+      Till close
+      <div class="step-indicator">
+        <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+    <div id="hs-banner-wrap"></div>
+    <div class="url-banner" id="url-banner"><span class="url-status linked">✓ Linked to Google Sheets</span><button class="url-edit-btn" onclick="goTo(0)">Change</button></div>
+    <div class="field-group">
+      <label>Date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="field-group">
+      <label>Staff name</label>
+      <input type="text" id="staff" placeholder="Your name">
+    </div>
+    <div class="field-group">
+      <label>Opening float (CZK)</label>
+      <input type="number" id="float" placeholder="e.g. 3000" min="0" step="1" inputmode="numeric" pattern="[0-9]*">
+    </div>
+    <div class="actions">
+      <button class="btn-primary" onclick="goTo(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Count -->
+  <div class="step" id="step2">
+    <div class="page-title">
+      Count the till
+      <div class="step-indicator">
+        <div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+    <div class="section-label">Banknotes — enter quantity</div>
+    <table class="denom-table">
+      <thead>
+        <tr>
+          <th>Note</th><th>Qty</th><th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="notes-tbody"><tr class="denom-row"><td class="denom-name">5000 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-5000CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;5000 CZK&#39;,5000)"></div></td><td class="denom-subtotal" id="sub-5000CZK">—</td></tr><tr class="denom-row"><td class="denom-name">2000 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-2000CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;2000 CZK&#39;,2000)"></div></td><td class="denom-subtotal" id="sub-2000CZK">—</td></tr><tr class="denom-row"><td class="denom-name">1000 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-1000CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;1000 CZK&#39;,1000)"></div></td><td class="denom-subtotal" id="sub-1000CZK">—</td></tr><tr class="denom-row"><td class="denom-name">500 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-500CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;500 CZK&#39;,500)"></div></td><td class="denom-subtotal" id="sub-500CZK">—</td></tr><tr class="denom-row"><td class="denom-name">200 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-200CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;200 CZK&#39;,200)"></div></td><td class="denom-subtotal" id="sub-200CZK">—</td></tr><tr class="denom-row"><td class="denom-name">100 CZK</td><td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-100CZK" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(&#39;100 CZK&#39;,100)"></div></td><td class="denom-subtotal" id="sub-100CZK">—</td></tr></tbody>
+    </table>
+    <div style="background:#f9f9f7;border-radius:10px;padding:1rem 1.25rem;border:1px solid #ebebeb;margin-bottom:1.25rem;">
+      <p style="font-size:13px;color:#666;margin:0 0 8px 0;padding:0;">Coins — total amount (CZK)</p>
+      <div style="width:100%;display:block;">
+        <input type="number" id="coins-total" placeholder="e.g. 450" min="0" step="1" inputmode="numeric" pattern="[0-9]*" oninput="updateRunning()" style="display:block;width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:18px;font-family:inherit;color:#1a1a1a;outline:none;background:#fff;box-sizing:border-box;">
+      </div>
+    </div>
+    <div class="running-total">
+      <div class="running-row">
+        <span class="running-label">Banknotes</span>
+        <span class="running-amount" id="notes-subtotal">0 CZK</span>
+      </div>
+      <div class="running-row">
+        <span class="running-label">Coins</span>
+        <span class="running-amount" id="coins-subtotal">0 CZK</span>
+      </div>
+      <div class="running-row">
+        <span class="running-label" style="font-weight:600;color:#1a1a1a;">Total cash in till</span>
+        <span class="running-total-big" id="running-total">0 CZK</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" onclick="goTo(1)">← Back</button>
+      <button class="btn-primary" onclick="goTo(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: POS -->
+  <div class="step" id="step3">
+    <div class="page-title">
+      POS reconciliation
+      <div class="step-indicator">
+        <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+      </div>
+    </div>
+    <div class="pos-box">
+      <div class="pos-row">
+        <span class="pos-label">Card sales (CZK)</span>
+        <input type="number" class="pos-input" id="card-sales" placeholder="0" min="0" step="1" inputmode="numeric" pattern="[0-9]*" oninput="updateExpected()">
+      </div>
+      <div class="pos-row">
+        <span class="pos-label">Cash sales — POS (CZK)</span>
+        <input type="number" class="pos-input" id="cash-sales" placeholder="0" min="0" step="1" inputmode="numeric" pattern="[0-9]*" oninput="updateExpected()">
+      </div>
+      <div class="pos-row">
+        <span class="pos-label">Total POS turnover</span>
+        <span class="pos-val" id="pos-total">0 CZK</span>
+      </div>
+    </div>
+    <div class="metric-row">
+      <div class="metric-card">
+        <div class="metric-label">Expected in till</div>
+        <div class="metric-value" id="expected-till">0 CZK</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Actual counted</div>
+        <div class="metric-value" id="actual-display">0 CZK</div>
+      </div>
+    </div>
+    <div class="field-group" style="margin-top:1rem;">
+      <label>Notes / discrepancies</label>
+      <textarea class="notes-field" id="notes" placeholder="Voids, refunds, errors..."></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" onclick="goTo(2)">← Back</button>
+      <button class="btn-primary" onclick="goTo(4)">See summary →</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Summary -->
+  <div class="step" id="step4">
+    <div class="page-title">
+      End of day summary
+      <div class="step-indicator">
+        <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div>
+      </div>
+    </div>
+    <div class="variance-card" id="variance-card">
+      <div class="variance-label" id="variance-label">Variance</div>
+      <div class="variance-amount" id="variance-display">0 CZK</div>
+      <div class="variance-msg" id="variance-msg"></div>
+    </div>
+    <div class="breakdown-box">
+      <div class="breakdown-row"><span class="breakdown-key">Date</span><span class="breakdown-val" id="s-date"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Staff</span><span class="breakdown-val" id="s-staff"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Opening float</span><span class="breakdown-val" id="s-float"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Cash sales (POS)</span><span class="breakdown-val" id="s-cash"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Card sales (POS)</span><span class="breakdown-val" id="s-card"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Banknotes counted</span><span class="breakdown-val" id="s-notes-sub"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Coins counted</span><span class="breakdown-val" id="s-coins-sub"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Expected in till</span><span class="breakdown-val" id="s-expected"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Actual counted</span><span class="breakdown-val" id="s-actual"></span></div>
+      <div class="breakdown-row"><span class="breakdown-key">Notes</span><span class="breakdown-val" id="s-notes-txt" style="max-width:55%;text-align:right;font-size:12px;font-weight:400;"></span></div>
+    </div>
+    <button class="submit-btn" id="submit-btn" onclick="submitToSheet()">Log to Google Sheets</button>
+    <button class="copy-btn" onclick="copyReport()">Copy report to clipboard</button>
+    <div class="actions" style="margin-top:8px;">
+      <button class="btn-secondary" onclick="goTo(3)">← Edit</button>
+      <button class="btn-secondary" onclick="resetAll()">New close</button>
+    </div>
+  </div>
+
+</div>
+<script>
+var denominations = [
+  { label: '5000 CZK', value: 5000 },
+  { label: '2000 CZK', value: 2000 },
+  { label: '1000 CZK', value: 1000 },
+  { label:  '500 CZK', value: 500  },
+  { label:  '200 CZK', value: 200  },
+  { label:  '100 CZK', value: 100  }
+];
+var scriptUrl = '';
+
+function fmt(n) { return Math.round(n).toLocaleString('cs-CZ') + ' CZK'; }
+
+function getQty(label) {
+  var el = document.getElementById('qty-' + label.replace(/\s/g,''));
+  return parseInt(el ? el.value : 0) || 0;
+}
+function getNotesTotal() {
+  return denominations.reduce(function(sum,d){ return sum + getQty(d.label)*d.value; }, 0);
+}
+function getCoinsTotal() { return parseFloat(document.getElementById('coins-total').value)||0; }
+function getTotal() { return getNotesTotal()+getCoinsTotal(); }
+
+function updateRow(label,value) {
+  var qty = getQty(label);
+  var sub = document.getElementById('sub-'+label.replace(/\s/g,''));
+  if(sub){ sub.textContent = qty>0 ? fmt(qty*value) : '—'; sub.className='denom-subtotal'+(qty>0?' has-value':''); }
+  updateRunning();
+}
+function updateRunning() {
+  document.getElementById('notes-subtotal').textContent = fmt(getNotesTotal());
+  document.getElementById('coins-subtotal').textContent = fmt(getCoinsTotal());
+  document.getElementById('running-total').textContent = fmt(getTotal());
+  updateExpected();
+}
+function updateExpected() {
+  var cash = parseFloat(document.getElementById('cash-sales').value)||0;
+  var card = parseFloat(document.getElementById('card-sales').value)||0;
+  var fl   = parseFloat(document.getElementById('float').value)||0;
+  document.getElementById('expected-till').textContent = fmt(fl+cash);
+  document.getElementById('actual-display').textContent = fmt(getTotal());
+  document.getElementById('pos-total').textContent = fmt(cash+card);
+}
+
+function buildTable() {
+  var tbody = document.getElementById('notes-tbody');
+  denominations.forEach(function(d){
+    var id = d.label.replace(/\s/g,'');
+    var tr = document.createElement('tr');
+    tr.className = 'denom-row';
+    tr.innerHTML =
+      '<td class="denom-name">'+d.label+'</td>'+
+      '<td><div class="denom-input-wrap"><input type="number" class="denom-qty" id="qty-'+id+'" min="0" step="1" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateRow(\''+d.label+'\','+d.value+')" /></div></td>'+
+      '<td class="denom-subtotal" id="sub-'+id+'">—</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function buildSummary() {
+  var fl   = parseFloat(document.getElementById('float').value)||0;
+  var cash = parseFloat(document.getElementById('cash-sales').value)||0;
+  var card = parseFloat(document.getElementById('card-sales').value)||0;
+  var actual   = getTotal();
+  var expected = fl+cash;
+  var variance = actual-expected;
+
+  document.getElementById('s-date').textContent     = document.getElementById('date').value||'—';
+  document.getElementById('s-staff').textContent    = document.getElementById('staff').value||'—';
+  document.getElementById('s-float').textContent    = fmt(fl);
+  document.getElementById('s-cash').textContent     = fmt(cash);
+  document.getElementById('s-card').textContent     = fmt(card);
+  document.getElementById('s-notes-sub').textContent= fmt(getNotesTotal());
+  document.getElementById('s-coins-sub').textContent= fmt(getCoinsTotal());
+  document.getElementById('s-expected').textContent = fmt(expected);
+  document.getElementById('s-actual').textContent   = fmt(actual);
+  document.getElementById('s-notes-txt').textContent= document.getElementById('notes').value||'—';
+
+  var vc = document.getElementById('variance-card');
+  vc.className = 'variance-card';
+  document.getElementById('variance-display').textContent = (variance>=0?'+':'')+fmt(variance);
+  if(Math.abs(variance)<=5){
+    vc.classList.add('ok');
+    document.getElementById('variance-label').textContent='All balanced';
+    document.getElementById('variance-msg').textContent='Till matches expected. Great close!';
+  } else if(variance<0){
+    vc.classList.add('warn');
+    document.getElementById('variance-label').textContent='Till is short';
+    document.getElementById('variance-msg').textContent='Missing '+fmt(Math.abs(variance))+' — check for errors or missed sales.';
+  } else {
+    vc.classList.add('over');
+    document.getElementById('variance-label').textContent='Till is over';
+    document.getElementById('variance-msg').textContent=fmt(variance)+' over expected — worth checking.';
+  }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = !scriptUrl;
+  btn.className = 'submit-btn';
+  btn.textContent = scriptUrl ? 'Submit & done' : 'No Sheet linked — set up first';
+}
+
+async function submitToSheet() {
+  if(!scriptUrl) return;
+  var btn = document.getElementById('submit-btn');
+  btn.textContent='Sending...'; btn.className='submit-btn sending'; btn.disabled=true;
+  var fl   = parseFloat(document.getElementById('float').value)||0;
+  var cash = parseFloat(document.getElementById('cash-sales').value)||0;
+  var card = parseFloat(document.getElementById('card-sales').value)||0;
+  var actual=getTotal(), expected=fl+cash, variance=actual-expected;
+  var status=Math.abs(variance)<=5?'OK':variance<0?'Short':'Over';
+  try {
+    await fetch(scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({date:document.getElementById('date').value,staff:document.getElementById('staff').value,
+        float:Math.round(fl),cashSales:Math.round(cash),cardSales:Math.round(card),
+        expected:Math.round(expected),actual:Math.round(actual),variance:Math.round(variance),
+        status:status,notes:document.getElementById('notes').value||''})});
+    btn.textContent='✓ Submitted & logged'; btn.className='submit-btn sent';
+  } catch(err){
+    btn.textContent='Error — check your URL'; btn.className='submit-btn error'; btn.disabled=false;
+  }
+}
+
+function copyReport() {
+  var fl=parseFloat(document.getElementById('float').value)||0;
+  var cash=parseFloat(document.getElementById('cash-sales').value)||0;
+  var card=parseFloat(document.getElementById('card-sales').value)||0;
+  var actual=getTotal(),expected=fl+cash,variance=actual-expected;
+  var status=Math.abs(variance)<=5?'✅ Balanced':variance<0?'⚠️ Short':'⚠️ Over';
+  var text='TILL CLOSE — '+(document.getElementById('date').value||'—')+'\nStaff: '+(document.getElementById('staff').value||'—')+'\n'+status+
+    '\n\nOpening float:     '+fmt(fl)+'\nCash sales (POS):  '+fmt(cash)+'\nCard sales (POS):  '+fmt(card)+
+    '\nExpected in till:  '+fmt(expected)+'\nActual counted:    '+fmt(actual)+
+    '\nVariance:          '+(variance>=0?'+':'')+fmt(variance)+'\n\nNotes: '+(document.getElementById('notes').value||'—');
+  navigator.clipboard.writeText(text).then(function(){
+    var b=document.querySelector('.copy-btn'); b.textContent='Copied!';
+    setTimeout(function(){ b.textContent='Copy report to clipboard'; },2000);
+  });
+}
+
+function saveUrl() {
+  var val=document.getElementById('script-url-input').value.trim();
+  if(!val.startsWith('https://script.google.com')){ alert('Please paste a valid Google Apps Script URL'); return; }
+  scriptUrl=val;
+  try{ localStorage.setItem('till_script_url_v4',val); }catch(e){}
+  goTo(1);
+}
+function skipUrl(){ scriptUrl=''; goTo(1); }
+
+function renderBanner() {
+  var b=document.getElementById('url-banner');
+  b.innerHTML=scriptUrl
+    ?'<span class="url-status linked">✓ Linked to Google Sheets</span><button class="url-edit-btn" onclick="goTo(0)">Change</button>'
+    :'<span class="url-status">No Sheet linked</span><button class="url-edit-btn" onclick="goTo(0)">Set up</button>';
+}
+
+function renderHSBanner() {
+  var wrap = document.getElementById('hs-banner-wrap');
+  if(!wrap) return;
+  try{ if(localStorage.getItem('hs_dismissed')){ wrap.innerHTML=''; return; } }catch(e){}
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isAndroid = /android/i.test(navigator.userAgent);
+  if(!isIOS && !isAndroid){ wrap.innerHTML=''; return; }
+  var instructions = isIOS
+    ? 'Tap the <b>Share icon</b> at the bottom of Safari, then tap <b>Add to Home Screen</b>'
+    : 'Tap the <b>three dots</b> menu in Chrome, then tap <b>Add to Home screen</b>';
+  wrap.innerHTML =
+    '<div class="hs-banner">'+
+      '<div class="hs-icon">📲</div>'+
+      '<div class="hs-content">'+
+        '<div class="hs-title">Save to your home screen</div>'+
+        '<div class="hs-body">'+instructions+' for quick access every closing.</div>'+
+        '<button class="hs-dismiss" onclick="dismissHS()">Got it, don\'t show again</button>'+
+      '</div>'+
+    '</div>';
+}
+
+function dismissHS() {
+  try{ localStorage.setItem('hs_dismissed','1'); }catch(e){}
+  var wrap=document.getElementById('hs-banner-wrap');
+  if(wrap) wrap.innerHTML='';
+}
+
+function goTo(n) {
+  document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('step'+n).classList.add('active');
+  if(n===1){ renderBanner(); renderHSBanner(); }
+  if(n===4) buildSummary();
+}
+
+function resetAll() {
+  ['staff','float','card-sales','cash-sales','notes','coins-total'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.querySelectorAll('.denom-qty').forEach(function(el){ el.value=''; });
+  document.querySelectorAll('.denom-subtotal').forEach(function(el){ el.textContent='—'; el.className='denom-subtotal'; });
+  document.getElementById('date').value=new Date().toISOString().split('T')[0];
+  updateRunning(); goTo(1);
+}
+
+try{ var saved=localStorage.getItem('till_script_url_v4'); if(saved){ scriptUrl=saved; goTo(1); } }catch(e){}
+document.getElementById('date').value=new Date().toISOString().split('T')[0];
+buildTable();
+</script>
+
+
+</body></html>
